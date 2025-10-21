@@ -1,30 +1,23 @@
 import asyncio
-from typing import Any, Optional
+from typing import Any
 
 from livekit import rtc
 from livekit.agents import AgentSession, ChatMessage, ConversationItemAddedEvent, ErrorEvent
-from openai import BaseModel
 
 from livekit_voice_call_runner.core.call_agent import CallAgent
+from livekit_voice_call_runner.core.ishutdown import ShutdownEvent
 from livekit_voice_call_runner.livekit import disconnect_reason_mapper
 from livekit_voice_call_runner.logger import CallLogger
 from livekit_voice_call_runner.model import CallRoom
 
 
-class ShutdownEvent(BaseModel):
-    reason: str
-    context: dict[str, Any]
-
-
 class CallEventListener:
     def __init__(self, logger: CallLogger):
         self._logger = logger
-        self._shutdown_event: Optional[ShutdownEvent] = None
+        self._shutdown = ShutdownEvent()
 
-    async def wait_for_shutdown(self) -> ShutdownEvent:
-        while not self._shutdown_event:
-            await asyncio.sleep(5.0)
-        return self._shutdown_event
+    async def wait_for_shutdown(self) -> dict[str, Any]:
+        return await self._shutdown.do_wait()
 
     async def listen_to_room(self, room: CallRoom) -> None:
         self._logger.info("Listening to room.", extra={"room_name": room.name})
@@ -38,12 +31,13 @@ class CallEventListener:
 
         @room.on("participant_disconnected")
         def _on_participant_disconnected(participant: rtc.RemoteParticipant):
+            name = "Participant disconnected"
             context = {"participant_identity": participant.identity}
-            reason = "Participant disconnected"
-            if not self._shutdown_event:
-                self._shutdown_event = ShutdownEvent(reason=reason, context=context)
+            reason = {"name": name, "context": context}
+            if not self._shutdown:
+                self._shutdown.do_set(reason=reason)
 
-            self._logger.info(reason, extra=context)
+            self._logger.info(name, extra=context)
 
         # TODO: check if this is needed at all
         @room.on("track_published")
@@ -57,12 +51,13 @@ class CallEventListener:
 
         @room.on("disconnected")
         def _on_disconnected(disconnect_reason: rtc.DisconnectReason):
+            name = "Call agent lost connection"
             context = {"reason": disconnect_reason_mapper.map_to_name(reason=disconnect_reason)}
-            reason = "Call agent lost connection"
-            if not self._shutdown_event:
-                self._shutdown_event = ShutdownEvent(reason=reason, context=context)
+            reason = {"name": name, "context": context}
+            if not self._shutdown:
+                self._shutdown.do_set(reason=reason)
 
-            self._logger.info(reason, extra=context)
+            self._logger.info(name, extra=context)
 
     async def listen_to_session(self, session: AgentSession, agent: CallAgent):
         self._logger.info("Listening to session.")
@@ -75,9 +70,10 @@ class CallEventListener:
 
         @session.on("error")
         def _on_error(event: ErrorEvent):
-            context = event.model_dump()
-            reason = "Unexpected error in session"
-            if not self._shutdown_event:
-                self._shutdown_event = ShutdownEvent(reason=reason, context=context)
+            name = "Unexpected error in session"
+            context = {"event": event.model_dump()}
+            reason = {"name": name, "context": context}
+            if not self._shutdown:
+                self._shutdown.do_set(reason=reason)
 
-            self._logger.error(reason, extra=context)
+            self._logger.error(name, extra=context)
