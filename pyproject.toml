@@ -1,0 +1,56 @@
+[project]
+authors = []
+description = ""
+name = "livekit-voice-call-runner"
+requires-python = "3.10.18"
+version = "0.0.1"
+
+dependencies = [
+  "livekit-api (>=1.0.5,<2.0.0)",
+  "livekit-agents[openai,silero] (>=1.2.6,<2.0.0)",
+  "python-dotenv (>=1.1.1,<2.0.0)",
+  "pyyaml (>=6.0.2,<7.0.0)",
+]
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+
+[tool.poetry]
+include = ["py.typed"]
+packages = [
+  {include = "livekit_voice_call_runner", from = "src"},
+]
+
+[tool.poetry.scripts]
+livekit_voice_call_runner = "livekit_voice_call_runner.cli:run"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+autoflake = "2.3.1"
+black = "25.1.0"
+faker = "37.3.0"
+flake8 = "7.2.0"
+isort = "6.0.1"
+mypy = "1.15.0"
+pre-commit = "4.2.0"
+pytest = "8.3.5"
+pytest-asyncio = "0.26.0"
+pytest-mock = "3.14.0"
+
+[tool.black]
+line-length = 120
+target-version = ['py39']
+
+[tool.isort]
+combine_as_imports = true
+filter_files = true
+line_length = 120
+profile = "black"
+
+[tool.pytest.ini_options]
+python_files = ["test_*.py"]
+pythonpath = ["."]
+testpaths = ["tests"]
