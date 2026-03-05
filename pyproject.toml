@@ -5,13 +5,6 @@ name = "livekit-voice-call-runner"
 requires-python = "3.10.18"
 version = "0.0.1"
 
-dependencies = [
-  "livekit-api (>=1.0.5,<2.0.0)",
-  "livekit-agents[openai,silero] (>=1.2.6,<2.0.0)",
-  "python-dotenv (>=1.1.1,<2.0.0)",
-  "pyyaml (>=6.0.2,<7.0.0)",
-]
-
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -27,6 +20,12 @@ livekit_voice_call_runner = "livekit_voice_call_runner.cli:run"
 
 [tool.poetry.group.dev]
 optional = true
+
+[tool.poetry.dependencies]
+livekit-agents = {version = "1.2.6", extras = ["openai", "silero"]}
+livekit-api = {version = "1.0.5", extras = ["async"]}
+python-dotenv = "1.1.1"
+pyyaml = "6.0.2"
 
 [tool.poetry.group.dev.dependencies]
 autoflake = "2.3.1"
