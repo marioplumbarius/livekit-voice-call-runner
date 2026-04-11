@@ -1,8 +1,6 @@
 import importlib
 import sys
 
-import pytest
-
 
 def _reload_config(module_path: str):
     """Reload a config module and reset its lru_cache so env changes take effect."""
@@ -10,7 +8,6 @@ def _reload_config(module_path: str):
         del sys.modules[module_path]
     module = importlib.import_module(module_path)
     return module
-
 
 
 def test_get_config(shared_env):

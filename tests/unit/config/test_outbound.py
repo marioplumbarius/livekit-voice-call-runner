@@ -1,8 +1,6 @@
 import importlib
 import sys
 
-import pytest
-
 
 def _reload_config(module_path: str):
     """Reload a config module and reset its lru_cache so env changes take effect."""
@@ -12,7 +10,6 @@ def _reload_config(module_path: str):
     return module
 
 
-
 def test_get_config(outbound_env):
     module = _reload_config("livekit_voice_call_runner.config.outbound")
     cfg = module.get_config()
@@ -20,5 +17,3 @@ def test_get_config(outbound_env):
     assert cfg.phone_number_from == outbound_env["CALL_OUTBOUND_PHONE_NUMBER_FROM"]
     assert cfg.ringing_timeout == int(outbound_env["CALL_OUTBOUND_RINGING_TIMEOUT"])
     assert cfg.max_call_duration == int(outbound_env["CALL_OUTBOUND_MAX_CALL_DURATION"])
-
-
