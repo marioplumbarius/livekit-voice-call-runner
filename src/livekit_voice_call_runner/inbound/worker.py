@@ -18,7 +18,7 @@ def _make_entrypoint(instructions: str):
 
         log.info("Inbound call received.", extra={"room": ctx.room.name})
 
-        cfg = config.shared.get_config()
+        cfg = config.base.get_config()
         call_agent = factory.create_inbound_call_agent(instructions=instructions, correlation_id=correlation_id)
         call_session_starter = factory.create_call_session_starter(correlation_id=correlation_id, cfg=cfg)
         call_event_listener = factory.create_call_event_listener(correlation_id=correlation_id)

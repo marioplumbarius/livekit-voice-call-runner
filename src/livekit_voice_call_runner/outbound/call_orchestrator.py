@@ -6,7 +6,7 @@ from livekit import api
 from livekit_voice_call_runner import factory
 from livekit_voice_call_runner.concurrency.tasks_runner import ConcurrentTasksRunner
 from livekit_voice_call_runner.config.outbound import OutboundConfig
-from livekit_voice_call_runner.config.shared import Config
+from livekit_voice_call_runner.config.base import Config
 from livekit_voice_call_runner.logger import CallLogger
 from livekit_voice_call_runner.outbound.call_runner import OutboundCallRunner, OutboundCallRunnerProps
 

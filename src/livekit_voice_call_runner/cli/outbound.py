@@ -13,7 +13,7 @@ logger = create_logger(name=__name__, correlation_id=str(uuid.uuid4()))
 async def _run(args) -> None:
     instructions = open(args.instructions_path, encoding="utf-8").read()
 
-    cfg = config.shared.get_config()
+    cfg = config.base.get_config()
     outbound_cfg = config.outbound.get_config()
     livekit_api = factory.create_livekit_api(cfg=cfg)
 

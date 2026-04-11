@@ -3,7 +3,7 @@ from livekit.plugins import openai
 from openai.types.beta.realtime.session import TurnDetection
 
 from livekit_voice_call_runner.config.outbound import OutboundConfig
-from livekit_voice_call_runner.config.shared import Config
+from livekit_voice_call_runner.config.base import Config
 from livekit_voice_call_runner.core.call_agent import InboundCallAgent
 from livekit_voice_call_runner.core.call_event_listener import CallEventListener
 from livekit_voice_call_runner.core.call_session_starter import CallSessionStarter

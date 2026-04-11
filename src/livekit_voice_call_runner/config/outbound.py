@@ -3,7 +3,7 @@ import functools
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
-from livekit_voice_call_runner.config.shared import get_env_or_raise
+from livekit_voice_call_runner.config.base import get_env_or_raise
 
 load_dotenv()
 
