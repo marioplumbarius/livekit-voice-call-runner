@@ -3,7 +3,7 @@ import asyncio
 from livekit.agents.voice import room_io
 from livekit.protocol import sip
 
-from livekit_voice_call_runner.core.call_agent import CallAgent
+from livekit_voice_call_runner.core.call_agent import InboundCallAgent
 from livekit_voice_call_runner.core.call_event_listener import CallEventListener
 from livekit_voice_call_runner.core.call_session_starter import CallSessionStarter
 from livekit_voice_call_runner.logger import CallLogger
@@ -22,7 +22,7 @@ class OutboundCallRunnerConfig(BaseModel):
 
 
 class OutboundCallRunnerProps(BaseModel):
-    call_agent: CallAgent
+    call_agent: InboundCallAgent
     call_room_connector: OutboundCallRoomConnector
     call_session_starter: CallSessionStarter
     call_event_listener: CallEventListener
