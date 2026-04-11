@@ -46,7 +46,7 @@ def test_run_when_direction_is_invalid(argv):
         run()
 
 
-def test_run_when_instructions_path_not_found():
+def test_run_when_instructions_path_invalid():
     sys.argv = ["livekit_voice_call_runner", "--direction", "inbound"]
     with pytest.raises(SystemExit):
         run()
