@@ -8,7 +8,6 @@ from livekit_voice_call_runner.core.call_agent import CallAgent
 from livekit_voice_call_runner.core.ishutdown import ShutdownEvent
 from livekit_voice_call_runner.livekit import disconnect_reason_mapper
 from livekit_voice_call_runner.logger import CallLogger
-from livekit_voice_call_runner.model import CallRoom
 
 
 class CallEventListener:
@@ -19,7 +18,7 @@ class CallEventListener:
     async def wait_for_shutdown(self) -> dict[str, Any]:
         return await self._shutdown.do_wait()
 
-    async def listen_to_room(self, room: CallRoom) -> None:
+    async def listen_to_room(self, room: rtc.Room) -> None:
         self._logger.info("Listening to room.", extra={"room_name": room.name})
 
         @room.on("participant_connected")
@@ -34,7 +33,7 @@ class CallEventListener:
             name = "Participant disconnected"
             context = {"participant_identity": participant.identity}
             reason = {"name": name, "context": context}
-            if not self._shutdown:
+            if not self._shutdown.is_set():
                 self._shutdown.do_set(reason=reason)
 
             self._logger.info(name, extra=context)
@@ -54,7 +53,7 @@ class CallEventListener:
             name = "Call agent lost connection"
             context = {"reason": disconnect_reason_mapper.map_to_name(reason=disconnect_reason)}
             reason = {"name": name, "context": context}
-            if not self._shutdown:
+            if not self._shutdown.is_set():
                 self._shutdown.do_set(reason=reason)
 
             self._logger.info(name, extra=context)
@@ -73,7 +72,7 @@ class CallEventListener:
             name = "Unexpected error in session"
             context = {"event": event.model_dump()}
             reason = {"name": name, "context": context}
-            if not self._shutdown:
+            if not self._shutdown.is_set():
                 self._shutdown.do_set(reason=reason)
 
             self._logger.error(name, extra=context)
