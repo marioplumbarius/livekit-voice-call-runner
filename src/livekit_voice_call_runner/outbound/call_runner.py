@@ -4,12 +4,12 @@ from livekit.agents.voice import room_io
 from livekit.protocol import sip
 
 from livekit_voice_call_runner.core.call_agent import CallAgent
-from livekit_voice_call_runner.core.call_dialer import CallDialer
 from livekit_voice_call_runner.core.call_event_listener import CallEventListener
-from livekit_voice_call_runner.core.call_room_connector import CallRoomConnector
 from livekit_voice_call_runner.core.call_session_starter import CallSessionStarter
 from livekit_voice_call_runner.logger import CallLogger
 from livekit_voice_call_runner.model import BaseModel
+from livekit_voice_call_runner.outbound.call_dialer import CallDialer
+from livekit_voice_call_runner.outbound.call_room_connector import CallRoomConnector
 
 
 class CallRunnerOutboundConfig(BaseModel):
@@ -69,7 +69,7 @@ class CallRunner:
             self._call_event_listener.wait_for_shutdown(),
             timeout=self._outbound_config.max_call_duration,
         )
-        self._logger.info("Call ended.", extra=shutdown_event.model_dump())
+        self._logger.info("Call ended.", extra=shutdown_event)
 
     async def _shutdown(self):
         logger_extra = {**self._outbound_config.model_dump()}

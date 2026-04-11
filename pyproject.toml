@@ -23,7 +23,7 @@ packages = [
 ]
 
 [tool.poetry.scripts]
-livekit_voice_call_runner = "livekit_voice_call_runner.cli:run"
+livekit_voice_call_runner = "livekit_voice_call_runner.cli.main:run"
 
 [tool.poetry.group.dev]
 optional = true
@@ -51,6 +51,7 @@ line_length = 120
 profile = "black"
 
 [tool.pytest.ini_options]
+asyncio_mode = "auto"
 python_files = ["test_*.py"]
 pythonpath = ["."]
 testpaths = ["tests"]

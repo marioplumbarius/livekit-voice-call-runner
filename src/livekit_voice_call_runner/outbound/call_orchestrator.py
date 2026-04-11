@@ -1,10 +1,10 @@
 import itertools
 import uuid
 
+from livekit_voice_call_runner import factory
 from livekit_voice_call_runner.concurrency.tasks_runner import ConcurrentTasksRunner
-from livekit_voice_call_runner.core import factory
-from livekit_voice_call_runner.core.call_runner import CallRunner, CallRunnerProps
 from livekit_voice_call_runner.logger import CallLogger
+from livekit_voice_call_runner.outbound.call_runner import CallRunner, CallRunnerProps
 
 
 class CallOrchestrator:
