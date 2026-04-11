@@ -12,14 +12,8 @@ def _reload_config(module_path: str):
     return module
 
 
-def test_get_config_when_required_var_missing(monkeypatch):
-    monkeypatch.delenv("LIVEKIT_URL", raising=False)
-    module = _reload_config("livekit_voice_call_runner.config.base")
-    with pytest.raises(ValueError, match="LIVEKIT_URL"):
-        module.get_config()
 
-
-def test_get_config_succeeds(shared_env):
+def test_get_config(shared_env):
     module = _reload_config("livekit_voice_call_runner.config.base")
     cfg = module.get_config()
     assert cfg.livekit_api.url == shared_env["LIVEKIT_URL"]

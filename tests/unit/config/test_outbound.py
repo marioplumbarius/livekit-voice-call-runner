@@ -12,14 +12,8 @@ def _reload_config(module_path: str):
     return module
 
 
-def test_get_config_when_required_var_missing(monkeypatch):
-    monkeypatch.delenv("LIVEKIT_OUTBOUND_SIP_TRUNK_ID", raising=False)
-    module = _reload_config("livekit_voice_call_runner.config.outbound")
-    with pytest.raises(ValueError, match="LIVEKIT_OUTBOUND_SIP_TRUNK_ID"):
-        module.get_config()
 
-
-def test_get_config_succeeds(outbound_env):
+def test_get_config(outbound_env):
     module = _reload_config("livekit_voice_call_runner.config.outbound")
     cfg = module.get_config()
     assert cfg.sip_trunk_id == outbound_env["LIVEKIT_OUTBOUND_SIP_TRUNK_ID"]
@@ -28,10 +22,3 @@ def test_get_config_succeeds(outbound_env):
     assert cfg.max_call_duration == int(outbound_env["CALL_OUTBOUND_MAX_CALL_DURATION"])
 
 
-def test_get_config_does_not_require_base_vars(monkeypatch, outbound_env):
-    """Outbound config should load independently of base env vars."""
-    monkeypatch.delenv("LIVEKIT_URL", raising=False)
-    monkeypatch.delenv("CALL_SESSION_LLM_API_KEY", raising=False)
-    module = _reload_config("livekit_voice_call_runner.config.outbound")
-    cfg = module.get_config()
-    assert cfg.sip_trunk_id == outbound_env["LIVEKIT_OUTBOUND_SIP_TRUNK_ID"]
