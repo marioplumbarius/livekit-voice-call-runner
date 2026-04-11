@@ -32,8 +32,7 @@ async def test_build_props_creates_cartesian_product(orchestrator, mocker):
         "livekit_voice_call_runner.factory.create_call_runner_props",
         return_value=mock_props,
     )
-    mocker.patch("livekit_voice_call_runner.outbound.call_orchestrator.shared_config")
-    mocker.patch("livekit_voice_call_runner.outbound.call_orchestrator.outbound_config")
+    mocker.patch("livekit_voice_call_runner.outbound.call_orchestrator.config")
     mocker.patch("livekit_voice_call_runner.factory.create_livekit_api", return_value=MagicMock())
 
     props = orchestrator._build_call_runner_props()

@@ -3,7 +3,7 @@ from livekit.agents import Agent, ChatMessage
 from livekit_voice_call_runner.logger import CallLogger
 
 
-class CallInboundAgent(Agent):
+class InboundCallAgent(Agent):
     def __init__(self, instructions: str, logger: CallLogger):
         super().__init__(instructions=instructions)
         self._logger = logger

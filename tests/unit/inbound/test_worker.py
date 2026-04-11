@@ -5,9 +5,9 @@ import pytest
 
 
 def _patch_entrypoint_deps(mocker, mock_agent, mock_session_starter, mock_event_listener):
-    mocker.patch("livekit_voice_call_runner.inbound.worker.shared_config")
+    mocker.patch("livekit_voice_call_runner.inbound.worker.config")
     mocker.patch(
-        "livekit_voice_call_runner.factory.create_call_inbound_agent", return_value=mock_agent
+        "livekit_voice_call_runner.factory.create_inbound_call_agent", return_value=mock_agent
     )
     mocker.patch(
         "livekit_voice_call_runner.factory.create_call_session_starter",

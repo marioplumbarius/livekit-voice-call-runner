@@ -7,7 +7,7 @@ from livekit.agents.voice import room_io
 
 from livekit import rtc
 
-from livekit_voice_call_runner.core.call_agent import CallInboundAgent
+from livekit_voice_call_runner.core.call_agent import InboundCallAgent
 from livekit_voice_call_runner.logger import CallLogger
 from livekit_voice_call_runner.model import CallSessionStarterConfigRealtime
 
@@ -61,7 +61,7 @@ class CallSessionStarter:
 
     async def start_session(
         self,
-        call_agent: CallInboundAgent,
+        call_agent: InboundCallAgent,
         call_room: rtc.Room,
         room_input_options: NotGivenOr[room_io.RoomInputOptions] = NOT_GIVEN,
         room_output_options: NotGivenOr[room_io.RoomOutputOptions] = NOT_GIVEN,

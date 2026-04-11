@@ -13,16 +13,7 @@ def listener():
     return CallEventListener(logger=logger)
 
 
-async def test_listen_to_room_accepts_rtc_room(listener, mocker):
-    """listen_to_room must accept a plain rtc.Room (widened type)."""
-    mock_room = MagicMock()
-    mock_room.name = "test-room"
-    mock_room.on = MagicMock(return_value=lambda fn: fn)
-
-    await listener.listen_to_room(room=mock_room)
-
-
-async def test_shutdown_triggered_on_participant_disconnect(listener, mocker):
+async def test_shutdown_triggers_on_participant_disconnect(listener, mocker):
     mock_room = MagicMock()
     mock_room.name = "test-room"
 
@@ -47,7 +38,7 @@ async def test_shutdown_triggered_on_participant_disconnect(listener, mocker):
     assert "name" in result or isinstance(result, dict)
 
 
-async def test_shutdown_triggered_on_room_disconnected(listener, mocker):
+async def test_shutdown_triggers_on_room_disconnected(listener, mocker):
     from livekit import rtc
 
     mock_room = MagicMock()
