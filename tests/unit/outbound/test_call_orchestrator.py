@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -15,7 +15,22 @@ def mock_concurrent_runner():
 
 
 @pytest.fixture
-def orchestrator(mock_concurrent_runner):
+def mock_cfg():
+    return MagicMock()
+
+
+@pytest.fixture
+def mock_outbound_cfg():
+    return MagicMock()
+
+
+@pytest.fixture
+def mock_livekit_api():
+    return MagicMock()
+
+
+@pytest.fixture
+def orchestrator(mock_concurrent_runner, mock_cfg, mock_outbound_cfg, mock_livekit_api):
     return OutboundCallOrchestrator(
         instructions=["Do task A."],
         phone_numbers=["+1111111111", "+2222222222"],
@@ -23,6 +38,9 @@ def orchestrator(mock_concurrent_runner):
         rounds=1,
         concurrent_tasks_runner=mock_concurrent_runner,
         logger=create_logger(name="test-orchestrator"),
+        cfg=mock_cfg,
+        outbound_cfg=mock_outbound_cfg,
+        livekit_api=mock_livekit_api,
     )
 
 
@@ -32,8 +50,6 @@ async def test_build_props_creates_cartesian_product(orchestrator, mocker):
         "livekit_voice_call_runner.factory.create_call_runner_props",
         return_value=mock_props,
     )
-    mocker.patch("livekit_voice_call_runner.outbound.call_orchestrator.config")
-    mocker.patch("livekit_voice_call_runner.factory.create_livekit_api", return_value=MagicMock())
 
     props = orchestrator._build_call_runner_props()
 

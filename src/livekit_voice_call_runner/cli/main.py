@@ -16,7 +16,10 @@ def run() -> None:
         choices=list(Direction),
         type=Direction,
         required=True,
-        help="Direction of the call: 'outbound' to dial out, 'inbound' to listen for incoming calls.",
+        help=(
+            f"Direction of the call: '{Direction.OUTBOUND.value}' to dial out, "
+            f"'{Direction.INBOUND.value}' to listen for incoming calls."
+        ),
     )
     parser.add_argument(
         "--instructions-path",

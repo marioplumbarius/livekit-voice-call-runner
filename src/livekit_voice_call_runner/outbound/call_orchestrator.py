@@ -1,8 +1,12 @@
 import itertools
 import uuid
 
-from livekit_voice_call_runner import config, factory
+from livekit import api
+
+from livekit_voice_call_runner import factory
 from livekit_voice_call_runner.concurrency.tasks_runner import ConcurrentTasksRunner
+from livekit_voice_call_runner.config.outbound import OutboundConfig
+from livekit_voice_call_runner.config.shared import Config
 from livekit_voice_call_runner.logger import CallLogger
 from livekit_voice_call_runner.outbound.call_runner import OutboundCallRunner, OutboundCallRunnerProps
 
@@ -16,6 +20,9 @@ class OutboundCallOrchestrator:
         rounds: int,
         concurrent_tasks_runner: ConcurrentTasksRunner,
         logger: CallLogger,
+        cfg: Config,
+        outbound_cfg: OutboundConfig,
+        livekit_api: api.LiveKitAPI,
     ):
         self._instructions = instructions
         self._phone_numbers = phone_numbers
@@ -23,18 +30,19 @@ class OutboundCallOrchestrator:
         self._rounds = rounds
         self._concurrent_tasks_runner = concurrent_tasks_runner
         self._logger = logger
+        self._cfg = cfg
+        self._outbound_cfg = outbound_cfg
+        self._livekit_api = livekit_api
 
     def _build_call_runner_props(self) -> list[OutboundCallRunnerProps]:
-        cfg = config.shared.get_config()
-        outbound_cfg = config.outbound.get_config()
         props = [
             factory.create_call_runner_props(
                 instructions=instructions,
                 phone_number_to=to_phone_number,
                 correlation_id=str(uuid.uuid4()),
-                cfg=cfg,
-                outbound_cfg=outbound_cfg,
-                livekit_api=factory.create_livekit_api(cfg=cfg),
+                cfg=self._cfg,
+                outbound_cfg=self._outbound_cfg,
+                livekit_api=self._livekit_api,
             )
             for instructions in self._instructions
             for to_phone_number in self._phone_numbers

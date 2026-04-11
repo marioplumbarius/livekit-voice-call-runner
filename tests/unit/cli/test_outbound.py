@@ -10,6 +10,8 @@ def test_run(mocker, tmp_path):
     instructions_file = tmp_path / "instructions.md"
     instructions_file.write_text(instructions_content)
 
+    mocker.patch("livekit_voice_call_runner.cli.outbound.config")
+    mocker.patch("livekit_voice_call_runner.cli.outbound.factory")
     mock_orchestrator_cls = mocker.patch(
         "livekit_voice_call_runner.cli.outbound.OutboundCallOrchestrator",
         autospec=True,
@@ -26,5 +28,4 @@ def test_run(mocker, tmp_path):
         run(args)
 
     assert exc_info.value.code == 0
-    mock_orchestrator_cls.assert_called_once()
     mock_orchestrator_cls.return_value.run.assert_called_once()
