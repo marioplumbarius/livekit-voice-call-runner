@@ -5,7 +5,7 @@ from livekit_voice_call_runner.core.ishutdown import IShutdown
 from livekit_voice_call_runner.logger import CallLogger
 
 
-class CallDialer(IShutdown):
+class OutboundCallDialer(IShutdown):
     def __init__(self, livekit_api: api.LiveKitAPI, logger: CallLogger):
         self._livekit_api = livekit_api
         self._logger = logger

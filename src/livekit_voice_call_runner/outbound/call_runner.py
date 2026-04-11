@@ -4,15 +4,15 @@ from livekit.agents.voice import room_io
 from livekit.protocol import sip
 
 from livekit_voice_call_runner.core.call_agent import CallAgent
-from livekit_voice_call_runner.core.call_dialer import CallDialer
 from livekit_voice_call_runner.core.call_event_listener import CallEventListener
-from livekit_voice_call_runner.core.call_room_connector import CallRoomConnector
 from livekit_voice_call_runner.core.call_session_starter import CallSessionStarter
 from livekit_voice_call_runner.logger import CallLogger
 from livekit_voice_call_runner.model import BaseModel
+from livekit_voice_call_runner.outbound.call_dialer import OutboundCallDialer
+from livekit_voice_call_runner.outbound.call_room_connector import OutboundCallRoomConnector
 
 
-class CallRunnerOutboundConfig(BaseModel):
+class OutboundCallRunnerConfig(BaseModel):
     phone_number_from: str
     phone_number_to: str
     sip_trunk_id: str
@@ -21,18 +21,18 @@ class CallRunnerOutboundConfig(BaseModel):
     max_call_duration: int
 
 
-class CallRunnerProps(BaseModel):
+class OutboundCallRunnerProps(BaseModel):
     call_agent: CallAgent
-    call_room_connector: CallRoomConnector
+    call_room_connector: OutboundCallRoomConnector
     call_session_starter: CallSessionStarter
     call_event_listener: CallEventListener
-    call_dialer: CallDialer
-    outbound_config: CallRunnerOutboundConfig
+    call_dialer: OutboundCallDialer
+    outbound_config: OutboundCallRunnerConfig
     logger: CallLogger
 
 
-class CallRunner:
-    def __init__(self, props: CallRunnerProps) -> None:
+class OutboundCallRunner:
+    def __init__(self, props: OutboundCallRunnerProps) -> None:
         self._call_agent = props.call_agent
         self._call_room_connector = props.call_room_connector
         self._call_session_starter = props.call_session_starter
@@ -69,7 +69,7 @@ class CallRunner:
             self._call_event_listener.wait_for_shutdown(),
             timeout=self._outbound_config.max_call_duration,
         )
-        self._logger.info("Call ended.", extra=shutdown_event.model_dump())
+        self._logger.info("Call ended.", extra=shutdown_event)
 
     async def _shutdown(self):
         logger_extra = {**self._outbound_config.model_dump()}
