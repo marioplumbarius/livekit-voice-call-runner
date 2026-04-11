@@ -41,7 +41,7 @@ Reorganise the module layout and fix the bug. No new user-visible behaviour.
 - `config/base.py`: shared env vars (LLM, LiveKit base, room, session). Lazy via `@lru_cache`.
 - `config/outbound.py`: outbound-only vars (`LIVEKIT_OUTBOUND_SIP_TRUNK_ID`, dialer settings).
   Lazy via `@lru_cache`.
-- `.env.template`: sectioned with `(shared)` / `(outbound)` labels.
+- `.env.template`: sectioned with `(base)` / `(outbound)` labels.
 
 ### Tests
 
