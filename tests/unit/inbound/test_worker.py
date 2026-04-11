@@ -4,6 +4,21 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 
+def _patch_entrypoint_deps(mocker, mock_agent, mock_session_starter, mock_event_listener):
+    mocker.patch("livekit_voice_call_runner.inbound.worker.shared_config")
+    mocker.patch(
+        "livekit_voice_call_runner.factory.create_call_inbound_agent", return_value=mock_agent
+    )
+    mocker.patch(
+        "livekit_voice_call_runner.factory.create_call_session_starter",
+        return_value=mock_session_starter,
+    )
+    mocker.patch(
+        "livekit_voice_call_runner.factory.create_call_event_listener",
+        return_value=mock_event_listener,
+    )
+
+
 async def test_entrypoint_calls_ctx_connect_first(mocker):
     """ctx.connect() must be called before any factory or session calls."""
     call_order = []
@@ -28,17 +43,7 @@ async def test_entrypoint_calls_ctx_connect_first(mocker):
     mock_event_listener.listen_to_session = AsyncMock()
     mock_event_listener.wait_for_shutdown = AsyncMock(return_value={"name": "ended"})
 
-    mocker.patch(
-        "livekit_voice_call_runner.factory.create_call_inbound_agent", return_value=mock_agent
-    )
-    mocker.patch(
-        "livekit_voice_call_runner.factory.create_call_session_starter",
-        return_value=mock_session_starter,
-    )
-    mocker.patch(
-        "livekit_voice_call_runner.factory.create_call_event_listener",
-        return_value=mock_event_listener,
-    )
+    _patch_entrypoint_deps(mocker, mock_agent, mock_session_starter, mock_event_listener)
 
     from livekit_voice_call_runner.inbound.worker import _make_entrypoint
 
@@ -70,17 +75,7 @@ async def test_entrypoint_calls_shutdown_in_finally(mocker):
         side_effect=RuntimeError("session error")
     )
 
-    mocker.patch(
-        "livekit_voice_call_runner.factory.create_call_inbound_agent", return_value=mock_agent
-    )
-    mocker.patch(
-        "livekit_voice_call_runner.factory.create_call_session_starter",
-        return_value=mock_session_starter,
-    )
-    mocker.patch(
-        "livekit_voice_call_runner.factory.create_call_event_listener",
-        return_value=mock_event_listener,
-    )
+    _patch_entrypoint_deps(mocker, mock_agent, mock_session_starter, mock_event_listener)
 
     from livekit_voice_call_runner.inbound.worker import _make_entrypoint
 
@@ -125,17 +120,7 @@ async def test_entrypoint_passes_rtc_room_to_listen_to_room(mocker):
     mock_event_listener.listen_to_session = AsyncMock()
     mock_event_listener.wait_for_shutdown = AsyncMock(return_value={"name": "ended"})
 
-    mocker.patch(
-        "livekit_voice_call_runner.factory.create_call_inbound_agent", return_value=mock_agent
-    )
-    mocker.patch(
-        "livekit_voice_call_runner.factory.create_call_session_starter",
-        return_value=mock_session_starter,
-    )
-    mocker.patch(
-        "livekit_voice_call_runner.factory.create_call_event_listener",
-        return_value=mock_event_listener,
-    )
+    _patch_entrypoint_deps(mocker, mock_agent, mock_session_starter, mock_event_listener)
 
     from livekit_voice_call_runner.inbound.worker import _make_entrypoint
 

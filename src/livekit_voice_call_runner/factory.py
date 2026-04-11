@@ -63,8 +63,7 @@ def create_call_inbound_agent(instructions: str, correlation_id: str) -> CallInb
     )
 
 
-def create_call_session_starter(correlation_id: str) -> CallSessionStarter:
-    cfg = shared_config.get_config()
+def create_call_session_starter(correlation_id: str, cfg: Config) -> CallSessionStarter:
     return _create_call_session_starter(
         logger=create_logger(name=CallSessionStarter.__name__, correlation_id=correlation_id),
         cfg=cfg,

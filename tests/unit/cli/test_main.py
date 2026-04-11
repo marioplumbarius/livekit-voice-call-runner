@@ -46,19 +46,14 @@ def test_run_when_direction_is_invalid(argv):
         run()
 
 
-def test_missing_instructions_path_exits():
-    sys.argv = ["livekit_voice_call_runner", "--direction", "inbound"]
-    with pytest.raises(SystemExit):
-        run()
-
-
-def test_run_when_no_phone_number_fails():
-    sys.argv = [
-        "livekit_voice_call_runner",
-        "--direction",
-        "outbound",
-        "--instructions-path",
-        "some/path.md",
-    ]
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["livekit_voice_call_runner", "--direction", "inbound"],
+        ["livekit_voice_call_runner", "--direction", "outbound", "--instructions-path", "some/path.md"],
+    ],
+)
+def test_run_when_required_arg_is_missing(argv):
+    sys.argv = argv
     with pytest.raises(SystemExit):
         run()
