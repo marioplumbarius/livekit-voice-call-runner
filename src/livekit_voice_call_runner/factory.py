@@ -4,7 +4,7 @@ from openai.types.beta.realtime.session import TurnDetection
 
 from livekit_voice_call_runner.config.base import Config
 from livekit_voice_call_runner.config.outbound import OutboundConfig
-from livekit_voice_call_runner.core.call_agent import InboundCallAgent
+from livekit_voice_call_runner.core.call_agent import CallAgent
 from livekit_voice_call_runner.core.call_event_listener import CallEventListener
 from livekit_voice_call_runner.core.call_session_starter import CallSessionStarter
 from livekit_voice_call_runner.logger import CallLogger, create_logger
@@ -46,10 +46,10 @@ def _create_call_session_starter(logger: CallLogger, cfg: Config) -> CallSession
     )
 
 
-def create_inbound_call_agent(instructions: str, correlation_id: str) -> InboundCallAgent:
-    return InboundCallAgent(
+def create_call_agent(instructions: str, correlation_id: str) -> CallAgent:
+    return CallAgent(
         instructions=instructions,
-        logger=create_logger(name=InboundCallAgent.__name__, correlation_id=correlation_id),
+        logger=create_logger(name=CallAgent.__name__, correlation_id=correlation_id),
     )
 
 
@@ -83,7 +83,7 @@ def create_call_runner_props(
     livekit_api: api.LiveKitAPI,
 ) -> OutboundCallRunnerProps:
     return OutboundCallRunnerProps(
-        call_agent=create_inbound_call_agent(instructions=instructions, correlation_id=correlation_id),
+        call_agent=create_call_agent(instructions=instructions, correlation_id=correlation_id),
         call_room_connector=OutboundCallRoomConnector(
             participant_identity=cfg.room_connector.participant_identity,
             room_name_prefix=cfg.livekit_api.room_name_prefix,
