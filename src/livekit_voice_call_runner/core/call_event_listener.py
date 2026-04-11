@@ -4,7 +4,7 @@ from typing import Any
 from livekit import rtc
 from livekit.agents import AgentSession, ChatMessage, ConversationItemAddedEvent, ErrorEvent
 
-from livekit_voice_call_runner.core.call_agent import CallAgent
+from livekit_voice_call_runner.core.call_agent import CallInboundAgent
 from livekit_voice_call_runner.core.ishutdown import ShutdownEvent
 from livekit_voice_call_runner.livekit import disconnect_reason_mapper
 from livekit_voice_call_runner.logger import CallLogger
@@ -58,7 +58,7 @@ class CallEventListener:
 
             self._logger.info(name, extra=context)
 
-    async def listen_to_session(self, session: AgentSession, agent: CallAgent):
+    async def listen_to_session(self, session: AgentSession, agent: CallInboundAgent):
         self._logger.info("Listening to session.")
 
         @session.on("conversation_item_added")

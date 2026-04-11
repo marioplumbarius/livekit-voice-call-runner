@@ -3,11 +3,13 @@ import uuid
 
 from livekit_voice_call_runner import factory
 from livekit_voice_call_runner.concurrency.tasks_runner import ConcurrentTasksRunner
+from livekit_voice_call_runner.config import outbound as outbound_config
+from livekit_voice_call_runner.config import shared as shared_config
 from livekit_voice_call_runner.logger import CallLogger
-from livekit_voice_call_runner.outbound.call_runner import CallRunner, CallRunnerProps
+from livekit_voice_call_runner.outbound.call_runner import OutboundCallRunner, OutboundCallRunnerProps
 
 
-class CallOrchestrator:
+class OutboundCallOrchestrator:
     def __init__(
         self,
         instructions: list[str],
@@ -24,12 +26,17 @@ class CallOrchestrator:
         self._concurrent_tasks_runner = concurrent_tasks_runner
         self._logger = logger
 
-    def _build_call_runner_props(self) -> list[CallRunnerProps]:
+    def _build_call_runner_props(self) -> list[OutboundCallRunnerProps]:
+        cfg = shared_config.get_config()
+        outbound_cfg = outbound_config.get_config()
         props = [
             factory.create_call_runner_props(
                 instructions=instructions,
                 phone_number_to=to_phone_number,
                 correlation_id=str(uuid.uuid4()),
+                shared_cfg=cfg,
+                outbound_cfg=outbound_cfg,
+                livekit_api=factory.create_livekit_api(cfg=cfg),
             )
             for instructions in self._instructions
             for to_phone_number in self._phone_numbers
@@ -44,7 +51,7 @@ class CallOrchestrator:
         self._logger.info("Running round.", extra=logger_extra)
 
         props = self._build_call_runner_props()
-        tasks = [CallRunner(props=prop).run() for prop in props]
+        tasks = [OutboundCallRunner(props=prop).run() for prop in props]
         await self._concurrent_tasks_runner.run(tasks=tasks, concurrency=self._concurrency)
 
         self._logger.info("Successfully ran round.", extra=logger_extra)

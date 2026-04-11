@@ -1,7 +1,7 @@
 import sys
 import uuid
 
-from livekit.agents import JobContext, WorkerOptions, cli as agents_cli
+from livekit.agents import JobContext, WorkerOptions, cli
 
 from livekit_voice_call_runner import factory
 from livekit_voice_call_runner.logger import create_logger
@@ -18,7 +18,7 @@ def _make_entrypoint(instructions: str):
 
         log.info("Inbound call received.", extra={"room": ctx.room.name})
 
-        call_agent = factory.create_call_agent(instructions=instructions, correlation_id=correlation_id)
+        call_agent = factory.create_call_inbound_agent(instructions=instructions, correlation_id=correlation_id)
         call_session_starter = factory.create_call_session_starter(correlation_id=correlation_id)
         call_event_listener = factory.create_call_event_listener(correlation_id=correlation_id)
 
@@ -37,6 +37,7 @@ def _make_entrypoint(instructions: str):
     return entrypoint
 
 
-def run_worker(instructions: str) -> None:
-    sys.argv = [sys.argv[0], "dev"]  # hide livekit CLI; default to dev
-    agents_cli.run_app(WorkerOptions(entrypoint_fnc=_make_entrypoint(instructions)))
+def run(instructions: str) -> None:
+    # Force the LiveKit agents worker into dev mode, bypassing the livekit CLI sub-command requirement.
+    sys.argv = [sys.argv[0], "dev"]
+    cli.run_app(WorkerOptions(entrypoint_fnc=_make_entrypoint(instructions)))

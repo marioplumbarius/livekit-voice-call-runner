@@ -7,7 +7,7 @@ from livekit_voice_call_runner.logger import CallLogger
 from livekit_voice_call_runner.model import CallRoom
 
 
-class CallRoomConnector(IShutdown):
+class OutboundCallRoomConnector(IShutdown):
     def __init__(
         self,
         room_name_prefix: str,

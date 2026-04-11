@@ -1,5 +1,8 @@
 import argparse
 
+from livekit_voice_call_runner.cli.inbound import run as run_inbound
+from livekit_voice_call_runner.cli.outbound import run as run_outbound
+
 
 def run() -> None:
     parser = argparse.ArgumentParser(prog="livekit_voice_call_runner")
@@ -33,11 +36,10 @@ def run() -> None:
     )
     args = parser.parse_args()
 
-    if args.direction == "outbound":
-        from livekit_voice_call_runner.cli.outbound import run as run_outbound
+    if args.direction == "outbound" and not args.phone_number:
+        parser.error("--phone-number is required for outbound direction")
 
+    if args.direction == "outbound":
         run_outbound(args)
     else:
-        from livekit_voice_call_runner.cli.inbound import run as run_inbound
-
         run_inbound(args)

@@ -2,36 +2,25 @@ from livekit import api
 from livekit.plugins import openai
 from openai.types.beta.realtime.session import TurnDetection
 
-from livekit_voice_call_runner.config import outbound as outbound_config_module
-from livekit_voice_call_runner.config import shared as shared_config_module
-from livekit_voice_call_runner.core.call_agent import CallAgent
+from livekit_voice_call_runner.config import outbound as outbound_config
+from livekit_voice_call_runner.config import shared as shared_config
+from livekit_voice_call_runner.config.outbound import OutboundConfig
+from livekit_voice_call_runner.config.shared import Config
+from livekit_voice_call_runner.core.call_agent import CallInboundAgent
 from livekit_voice_call_runner.core.call_event_listener import CallEventListener
 from livekit_voice_call_runner.core.call_session_starter import CallSessionStarter
 from livekit_voice_call_runner.logger import CallLogger, create_logger
 from livekit_voice_call_runner.model import CallSessionStarterConfigRealtime
-from livekit_voice_call_runner.outbound.call_dialer import CallDialer
-from livekit_voice_call_runner.outbound.call_room_connector import CallRoomConnector
-from livekit_voice_call_runner.outbound.call_runner import CallRunner, CallRunnerOutboundConfig, CallRunnerProps
+from livekit_voice_call_runner.outbound.call_dialer import OutboundCallDialer
+from livekit_voice_call_runner.outbound.call_room_connector import OutboundCallRoomConnector
+from livekit_voice_call_runner.outbound.call_runner import (
+    OutboundCallRunner,
+    OutboundCallRunnerConfig,
+    OutboundCallRunnerProps,
+)
 
 
-def _create_livekit_api() -> api.LiveKitAPI:
-    cfg = shared_config_module.get_config()
-    return api.LiveKitAPI(
-        url=cfg.livekit_api.url,
-        api_key=cfg.livekit_api.api_key,
-        api_secret=cfg.livekit_api.api_secret,
-    )
-
-
-def create_call_agent(instructions: str, correlation_id: str) -> CallAgent:
-    return CallAgent(
-        instructions=instructions,
-        logger=create_logger(name=CallAgent.__name__, correlation_id=correlation_id),
-    )
-
-
-def _create_call_session_starter(logger: CallLogger) -> CallSessionStarter:
-    cfg = shared_config_module.get_config()
+def _create_call_session_starter(logger: CallLogger, cfg: Config) -> CallSessionStarter:
     return CallSessionStarter(
         config=CallSessionStarterConfigRealtime(
             llm=openai.realtime.RealtimeModel.with_azure(
@@ -59,9 +48,26 @@ def _create_call_session_starter(logger: CallLogger) -> CallSessionStarter:
     )
 
 
+def create_livekit_api(cfg: Config) -> api.LiveKitAPI:
+    return api.LiveKitAPI(
+        url=cfg.livekit_api.url,
+        api_key=cfg.livekit_api.api_key,
+        api_secret=cfg.livekit_api.api_secret,
+    )
+
+
+def create_call_inbound_agent(instructions: str, correlation_id: str) -> CallInboundAgent:
+    return CallInboundAgent(
+        instructions=instructions,
+        logger=create_logger(name=CallInboundAgent.__name__, correlation_id=correlation_id),
+    )
+
+
 def create_call_session_starter(correlation_id: str) -> CallSessionStarter:
+    cfg = shared_config.get_config()
     return _create_call_session_starter(
-        logger=create_logger(name=CallSessionStarter.__name__, correlation_id=correlation_id)
+        logger=create_logger(name=CallSessionStarter.__name__, correlation_id=correlation_id),
+        cfg=cfg,
     )
 
 
@@ -75,26 +81,29 @@ def create_call_runner_props(
     instructions: str,
     phone_number_to: str,
     correlation_id: str,
-) -> CallRunnerProps:
-    cfg = shared_config_module.get_config()
-    outbound_cfg = outbound_config_module.get_config()
-    livekit_api = _create_livekit_api()
-    return CallRunnerProps(
-        call_agent=create_call_agent(instructions=instructions, correlation_id=correlation_id),
-        call_room_connector=CallRoomConnector(
-            participant_identity=cfg.room_connector.participant_identity,
-            room_name_prefix=cfg.livekit_api.room_name_prefix,
-            livekit_url=cfg.livekit_api.url,
+    shared_cfg: Config,
+    outbound_cfg: OutboundConfig,
+    livekit_api: api.LiveKitAPI,
+) -> OutboundCallRunnerProps:
+    return OutboundCallRunnerProps(
+        call_agent=create_call_inbound_agent(instructions=instructions, correlation_id=correlation_id),
+        call_room_connector=OutboundCallRoomConnector(
+            participant_identity=shared_cfg.room_connector.participant_identity,
+            room_name_prefix=shared_cfg.livekit_api.room_name_prefix,
+            livekit_url=shared_cfg.livekit_api.url,
             livekit_api=livekit_api,
-            logger=create_logger(name=CallRoomConnector.__name__, correlation_id=correlation_id),
+            logger=create_logger(name=OutboundCallRoomConnector.__name__, correlation_id=correlation_id),
         ),
-        call_session_starter=create_call_session_starter(correlation_id=correlation_id),
+        call_session_starter=_create_call_session_starter(
+            logger=create_logger(name=CallSessionStarter.__name__, correlation_id=correlation_id),
+            cfg=shared_cfg,
+        ),
         call_event_listener=create_call_event_listener(correlation_id=correlation_id),
-        call_dialer=CallDialer(
+        call_dialer=OutboundCallDialer(
             livekit_api=livekit_api,
-            logger=create_logger(name=CallDialer.__name__, correlation_id=correlation_id),
+            logger=create_logger(name=OutboundCallDialer.__name__, correlation_id=correlation_id),
         ),
-        outbound_config=CallRunnerOutboundConfig(
+        outbound_config=OutboundCallRunnerConfig(
             phone_number_from=outbound_cfg.phone_number_from,
             phone_number_to=phone_number_to,
             sip_trunk_id=outbound_cfg.sip_trunk_id,
@@ -102,5 +111,5 @@ def create_call_runner_props(
             ringing_timeout=outbound_cfg.ringing_timeout,
             max_call_duration=outbound_cfg.max_call_duration,
         ),
-        logger=create_logger(name=CallRunner.__name__, correlation_id=correlation_id),
+        logger=create_logger(name=OutboundCallRunner.__name__, correlation_id=correlation_id),
     )

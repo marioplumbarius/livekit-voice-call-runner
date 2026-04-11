@@ -1,7 +1,7 @@
 import asyncio
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from unittest.mock import MagicMock, AsyncMock
 
 from livekit_voice_call_runner.core.call_event_listener import CallEventListener
 from livekit_voice_call_runner.logger import create_logger
@@ -13,85 +13,85 @@ def listener():
     return CallEventListener(logger=logger)
 
 
-class TestCallEventListener:
-    async def test_listen_to_room_accepts_rtc_room(self, listener, mocker):
-        """listen_to_room must accept a plain rtc.Room (widened type)."""
-        mock_room = MagicMock()
-        mock_room.name = "test-room"
-        mock_room.on = MagicMock(return_value=lambda fn: fn)
+async def test_listen_to_room_accepts_rtc_room(listener, mocker):
+    """listen_to_room must accept a plain rtc.Room (widened type)."""
+    mock_room = MagicMock()
+    mock_room.name = "test-room"
+    mock_room.on = MagicMock(return_value=lambda fn: fn)
 
-        # Should not raise — the widened type accepts rtc.Room
-        await listener.listen_to_room(room=mock_room)
+    await listener.listen_to_room(room=mock_room)
 
-    async def test_shutdown_triggered_on_participant_disconnect(self, listener, mocker):
-        mock_room = MagicMock()
-        mock_room.name = "test-room"
 
-        handlers = {}
+async def test_shutdown_triggered_on_participant_disconnect(listener, mocker):
+    mock_room = MagicMock()
+    mock_room.name = "test-room"
 
-        def capture_on(event):
-            def decorator(fn):
-                handlers[event] = fn
-                return fn
+    handlers = {}
 
-            return decorator
+    def capture_on(event):
+        def decorator(fn):
+            handlers[event] = fn
+            return fn
 
-        mock_room.on = capture_on
+        return decorator
 
-        await listener.listen_to_room(room=mock_room)
+    mock_room.on = capture_on
 
-        # Simulate participant disconnect
-        mock_participant = MagicMock()
-        mock_participant.identity = "caller-participant"
-        handlers["participant_disconnected"](mock_participant)
+    await listener.listen_to_room(room=mock_room)
 
-        result = await listener.wait_for_shutdown()
-        assert "name" in result or isinstance(result, dict)
+    mock_participant = MagicMock()
+    mock_participant.identity = "caller-participant"
+    handlers["participant_disconnected"](mock_participant)
 
-    async def test_shutdown_triggered_on_room_disconnected(self, listener, mocker):
-        from livekit import rtc
+    result = await listener.wait_for_shutdown()
+    assert "name" in result or isinstance(result, dict)
 
-        mock_room = MagicMock()
-        mock_room.name = "test-room"
 
-        handlers = {}
+async def test_shutdown_triggered_on_room_disconnected(listener, mocker):
+    from livekit import rtc
 
-        def capture_on(event):
-            def decorator(fn):
-                handlers[event] = fn
-                return fn
+    mock_room = MagicMock()
+    mock_room.name = "test-room"
 
-            return decorator
+    handlers = {}
 
-        mock_room.on = capture_on
+    def capture_on(event):
+        def decorator(fn):
+            handlers[event] = fn
+            return fn
 
-        await listener.listen_to_room(room=mock_room)
+        return decorator
 
-        handlers["disconnected"](rtc.DisconnectReason.UNKNOWN_REASON)
+    mock_room.on = capture_on
 
-        result = await listener.wait_for_shutdown()
-        assert isinstance(result, dict)
+    await listener.listen_to_room(room=mock_room)
 
-    async def test_session_error_triggers_shutdown(self, listener, mocker):
-        mock_session = MagicMock()
-        mock_agent = MagicMock()
+    handlers["disconnected"](rtc.DisconnectReason.UNKNOWN_REASON)
 
-        handlers = {}
+    result = await listener.wait_for_shutdown()
+    assert isinstance(result, dict)
 
-        def capture_on(event):
-            def decorator(fn):
-                handlers[event] = fn
-                return fn
 
-            return decorator
+async def test_session_error_triggers_shutdown(listener, mocker):
+    mock_session = MagicMock()
+    mock_agent = MagicMock()
 
-        mock_session.on = capture_on
+    handlers = {}
 
-        await listener.listen_to_session(session=mock_session, agent=mock_agent)
+    def capture_on(event):
+        def decorator(fn):
+            handlers[event] = fn
+            return fn
 
-        mock_error_event = MagicMock()
-        mock_error_event.model_dump.return_value = {"error": "test error"}
-        handlers["error"](mock_error_event)
+        return decorator
 
-        result = await listener.wait_for_shutdown()
-        assert isinstance(result, dict)
+    mock_session.on = capture_on
+
+    await listener.listen_to_session(session=mock_session, agent=mock_agent)
+
+    mock_error_event = MagicMock()
+    mock_error_event.model_dump.return_value = {"error": "test error"}
+    handlers["error"](mock_error_event)
+
+    result = await listener.wait_for_shutdown()
+    assert isinstance(result, dict)
