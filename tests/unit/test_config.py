@@ -19,7 +19,7 @@ def test_get_config_when_required_var_missing(monkeypatch):
         module.get_config()
 
 
-def test_shared_get_config_returns_correct_values(shared_env):
+def test_get_config_succeeds(shared_env):
     module = _reload_config("livekit_voice_call_runner.config.shared")
     cfg = module.get_config()
     assert cfg.livekit_api.url == shared_env["LIVEKIT_URL"]
