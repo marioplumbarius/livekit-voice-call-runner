@@ -1,13 +1,25 @@
 import argparse
+from enum import Enum
+
+from livekit_voice_call_runner.cli import inbound, outbound
+
+
+class Direction(str, Enum):
+    OUTBOUND = "outbound"
+    INBOUND = "inbound"
 
 
 def run() -> None:
     parser = argparse.ArgumentParser(prog="livekit_voice_call_runner")
     parser.add_argument(
         "--direction",
-        choices=["outbound", "inbound"],
+        choices=list(Direction),
+        type=Direction,
         required=True,
-        help="Direction of the call: 'outbound' to dial out, 'inbound' to listen for incoming calls.",
+        help=(
+            f"Direction of the call: '{Direction.OUTBOUND.value}' to dial out, "
+            f"'{Direction.INBOUND.value}' to listen for incoming calls."
+        ),
     )
     parser.add_argument(
         "--instructions-path",
@@ -33,11 +45,10 @@ def run() -> None:
     )
     args = parser.parse_args()
 
-    if args.direction == "outbound":
-        from livekit_voice_call_runner.cli.outbound import run as run_outbound
+    if args.direction == Direction.OUTBOUND and not args.phone_number:
+        parser.error("--phone-number is required for outbound direction")
 
-        run_outbound(args)
+    if args.direction == Direction.OUTBOUND:
+        outbound.run(args)
     else:
-        from livekit_voice_call_runner.cli.inbound import run as run_inbound
-
-        run_inbound(args)
+        inbound.run(args)

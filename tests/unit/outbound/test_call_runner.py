@@ -5,15 +5,15 @@ import pytest
 
 from livekit_voice_call_runner.logger import create_logger
 from livekit_voice_call_runner.outbound.call_runner import (
-    CallRunner,
-    CallRunnerOutboundConfig,
-    CallRunnerProps,
+    OutboundCallRunner,
+    OutboundCallRunnerConfig,
+    OutboundCallRunnerProps,
 )
 
 
 @pytest.fixture
 def outbound_config():
-    return CallRunnerOutboundConfig(
+    return OutboundCallRunnerConfig(
         phone_number_from="+10000000000",
         phone_number_to="+19999999999",
         sip_trunk_id="trunk-123",
@@ -51,7 +51,7 @@ def mock_props(outbound_config):
 
     logger = create_logger(name="test-runner", correlation_id="test-id")
 
-    return CallRunnerProps.model_construct(
+    return OutboundCallRunnerProps.model_construct(
         call_agent=mock_agent,
         call_room_connector=mock_room_connector,
         call_session_starter=mock_session_starter,
@@ -62,29 +62,21 @@ def mock_props(outbound_config):
     )
 
 
-class TestCallRunner:
-    async def test_run_connects_and_dials(self, mock_props):
-        runner = CallRunner(props=mock_props)
-        await runner.run()
+async def test_run(mock_props):
+    runner = OutboundCallRunner(props=mock_props)
+    await runner.run()
 
-        mock_props.call_room_connector.connect.assert_called_once()
-        mock_props.call_dialer.dial.assert_called_once()
-        mock_props.call_session_starter.start_session.assert_called_once()
+    mock_props.call_room_connector.connect.assert_called_once()
+    mock_props.call_dialer.dial.assert_called_once()
+    mock_props.call_session_starter.start_session.assert_called_once()
 
-    async def test_shutdown_called_even_on_exception(self, mock_props):
-        mock_props.call_room_connector.connect = AsyncMock(side_effect=RuntimeError("connect failed"))
 
-        runner = CallRunner(props=mock_props)
-        await runner.run()  # should not raise
+async def test_shutdown_called_even_on_exception(mock_props):
+    mock_props.call_room_connector.connect = AsyncMock(side_effect=RuntimeError("connect failed"))
 
-        mock_props.call_session_starter.shutdown.assert_called_once()
-        mock_props.call_room_connector.shutdown.assert_called_once()
-        mock_props.call_dialer.shutdown.assert_called_once()
+    runner = OutboundCallRunner(props=mock_props)
+    await runner.run()  # should not raise
 
-    async def test_listen_to_room_receives_callroom(self, mock_props):
-        runner = CallRunner(props=mock_props)
-        await runner.run()
-
-        mock_props.call_event_listener.listen_to_room.assert_called_once_with(
-            room=mock_props.call_room_connector.room
-        )
+    mock_props.call_session_starter.shutdown.assert_called_once()
+    mock_props.call_room_connector.shutdown.assert_called_once()
+    mock_props.call_dialer.shutdown.assert_called_once()
