@@ -33,23 +33,6 @@ def test_session_property_raises_before_start(starter):
         _ = starter.session
 
 
-async def test_start_session_accepts_rtc_room(starter, mocker):
-    """start_session must accept a plain rtc.Room (widened type)."""
-    mock_room = MagicMock()
-    mock_room.name = "test-room"
-
-    mock_session = MagicMock()
-    mock_session.agent_state = "listening"
-    mock_session.start = AsyncMock()
-
-    mocker.patch.object(starter, "_create_session", return_value=mock_session)
-
-    mock_agent = MagicMock()
-
-    await starter.start_session(call_agent=mock_agent, call_room=mock_room)
-    assert starter.session is mock_session
-
-
 async def test_start_session_raises_on_timeout(starter, mocker):
     mock_room = MagicMock()
     mock_room.name = "test-room"

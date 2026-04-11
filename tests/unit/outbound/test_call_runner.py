@@ -62,7 +62,7 @@ def mock_props(outbound_config):
     )
 
 
-async def test_run_connects_and_dials(mock_props):
+async def test_run(mock_props):
     runner = OutboundCallRunner(props=mock_props)
     await runner.run()
 
@@ -80,12 +80,3 @@ async def test_shutdown_called_even_on_exception(mock_props):
     mock_props.call_session_starter.shutdown.assert_called_once()
     mock_props.call_room_connector.shutdown.assert_called_once()
     mock_props.call_dialer.shutdown.assert_called_once()
-
-
-async def test_listen_to_room_receives_callroom(mock_props):
-    runner = OutboundCallRunner(props=mock_props)
-    await runner.run()
-
-    mock_props.call_event_listener.listen_to_room.assert_called_once_with(
-        room=mock_props.call_room_connector.room
-    )

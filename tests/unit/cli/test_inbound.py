@@ -19,7 +19,7 @@ def test_run_successfully(mocker, tmp_path):
     mock_run.assert_called_once_with(instructions=instructions_content)
 
 
-def test_run_when_instructions_path_not_found(tmp_path):
+def test_run_when_instructions_path_invalid(tmp_path):
     args = argparse.Namespace(instructions_path=str(tmp_path / "nonexistent.md"))
 
     with pytest.raises(FileNotFoundError):

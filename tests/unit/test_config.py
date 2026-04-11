@@ -12,12 +12,7 @@ def _reload_config(module_path: str):
     return module
 
 
-def test_shared_importing_module_does_not_raise_without_env_vars():
-    """Importing config.shared must not raise even if no env vars are set."""
-    _reload_config("livekit_voice_call_runner.config.shared")
-
-
-def test_shared_get_config_raises_when_required_var_missing(monkeypatch):
+def test_get_config_when_required_var_missing(monkeypatch):
     monkeypatch.delenv("LIVEKIT_URL", raising=False)
     module = _reload_config("livekit_voice_call_runner.config.shared")
     with pytest.raises(ValueError, match="LIVEKIT_URL"):

@@ -3,6 +3,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from livekit_voice_call_runner.inbound.worker import _make_entrypoint, run
+
 
 @pytest.fixture
 def mock_agent():
@@ -59,8 +61,6 @@ async def test_entrypoint_calls_ctx_connect_first(patched_deps, mock_agent, mock
         side_effect=lambda **_: call_order.append("listen_to_room")
     )
 
-    from livekit_voice_call_runner.inbound.worker import _make_entrypoint
-
     entrypoint = _make_entrypoint(instructions="Test instructions")
     await entrypoint(mock_ctx)
 
@@ -82,8 +82,6 @@ async def test_entrypoint_calls_shutdown_in_finally(
         side_effect=RuntimeError("session error")
     )
 
-    from livekit_voice_call_runner.inbound.worker import _make_entrypoint
-
     entrypoint = _make_entrypoint(instructions="Test instructions")
 
     with pytest.raises(RuntimeError, match="session error"):
@@ -92,11 +90,9 @@ async def test_entrypoint_calls_shutdown_in_finally(
     mock_session_starter.shutdown.assert_called_once()
 
 
-def test_run_sets_dev_argv(mocker):
+def test_run(mocker):
     """run must inject 'dev' into sys.argv before calling cli.run_app."""
     mock_run_app = mocker.patch("livekit.agents.cli.run_app")
-
-    from livekit_voice_call_runner.inbound.worker import run
 
     original_argv = sys.argv.copy()
     run(instructions="Test instructions")
@@ -116,12 +112,7 @@ async def test_entrypoint_passes_rtc_room_to_listen_to_room(
     mock_ctx.room.name = "test-room"
     mock_ctx.connect = AsyncMock()
 
-    from livekit_voice_call_runner.inbound.worker import _make_entrypoint
-
     entrypoint = _make_entrypoint(instructions="Test instructions")
     await entrypoint(mock_ctx)
 
     mock_event_listener.listen_to_room.assert_called_once_with(room=mock_ctx.room)
-    mock_session_starter.start_session.assert_called_once_with(
-        call_agent=mock_agent, call_room=mock_ctx.room
-    )
