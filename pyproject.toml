@@ -2,7 +2,7 @@
 authors = []
 description = ""
 name = "livekit-voice-call-runner"
-requires-python = "3.10.18"
+requires-python = ">=3.13"
 version = "0.0.1"
 
 dependencies = [
@@ -42,7 +42,7 @@ pytest-mock = "3.14.0"
 
 [tool.black]
 line-length = 120
-target-version = ['py39']
+target-version = ['py313']
 
 [tool.isort]
 combine_as_imports = true
