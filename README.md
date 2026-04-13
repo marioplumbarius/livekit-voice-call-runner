@@ -4,10 +4,12 @@ A LiveKit-powered voice call runner that supports both **outbound** (dial-out) a
 
 ## Prerequisites
 
-- Python 3.10.18
-- Poetry 2.1.3+
-- LiveKit
-- Azure OpenAI
+- Pyenv (`brew install pyenv`)
+- Python 3.13.13 (`pyenv install 3.13.13`)
+- Poetry 2.1.3+ (`brew install poetry`)
+- direnv 2.37.1 (`brew install direnv`)
+- LiveKit Project
+- Azure OpenAI Subscription
 
 ## Setup
 
@@ -16,6 +18,7 @@ cp .env.template .env # hint: update placeholders
 poetry install --with dev
 poetry config virtualenvs.in-project true
 poetry run pre-commit install
+direnv allow
 ```
 
 ## Run it

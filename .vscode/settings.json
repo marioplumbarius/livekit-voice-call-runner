@@ -1,0 +1,8 @@
+{
+  "python.interpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.formatting.provider": "none",
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true
+  }
+}
